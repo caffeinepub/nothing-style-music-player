@@ -1,104 +1,154 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Production canister resolution fix + Android-installable PWA",
+  "title": "Offline-first PWA improvements and bundled offline Android APK wrapper",
   "requirements": [
     {
-      "id": "REQ-13",
-      "summary": "Fix production “canister ID not resolved” by ensuring the frontend always initializes the backend actor with production canister configuration on production domains.",
+      "id": "REQ-16",
+      "summary": "Add an Android APK wrapper project that loads the built web app fully offline from within the APK (WebView/TWA-style local asset serving).",
       "acceptanceCriteria": [
-        "Opening https://nothing-style-music-player.icp0.io in a fresh browser session does not show “canister ID not resolved”.",
-        "The frontend’s backend actor initialization uses production canister configuration when running on the production domain and does not depend on localhost-only or dev-only configuration.",
-        "Core flows (load app, play bundled tracks, sign in with Internet Identity, view playlists, toggle favorites) work on the production URL without console errors related to canister resolution."
+        "A new Android project directory exists in the repo (or an equivalent packaged-wrapper setup) that can be built into an APK without requiring the hosted URL at runtime.",
+        "When the APK is installed and the device is in airplane mode, the app launches to the main UI (header, player section, library section) without a blank screen.",
+        "User-facing text added for the Android wrapper (if any) is in English."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/config.ts",
-          "operation": "modify",
-          "description": "Harden backend actor configuration selection so production domains (e.g., *.icp0.io / *.ic0.app) always use the deployed backend canister ID and correct host, and never fall back to localhost or unresolved canister references."
-        },
-        {
-          "path": "frontend/src/config/canisterResolution.ts",
+          "path": "frontend/android-wrapper/README.md",
           "operation": "create",
-          "description": "Add a small environment/domain resolution utility (production vs local) that returns stable, explicit canister configuration for actor creation (e.g., domain-based host selection and canister ID source)."
+          "description": "Add English documentation specific to the Android wrapper module: what it is, how it serves the bundled web build offline, and how it should be built/installed."
         },
         {
-          "path": "frontend/src/utils/urlParams.ts",
-          "operation": "modify",
-          "description": "Ensure any persisted URL/session parameters used for bootstrapping do not interfere with production canister configuration (e.g., validate/guard optional parameters so misconfiguration cannot happen from stale session state)."
+          "path": "frontend/android-wrapper/settings.gradle",
+          "operation": "create",
+          "description": "Create Android wrapper Gradle settings to define the wrapper project structure for building an APK that includes the bundled web build output."
         },
         {
-          "path": "frontend/src/components/player/PlayerSection.tsx",
-          "operation": "modify",
-          "description": "Add a user-friendly, English fallback error message for failures caused by misconfigured backend targeting (e.g., unresolved canister) so production issues are visible without breaking the whole UI."
-        }
-      ]
-    },
-    {
-      "id": "REQ-14",
-      "summary": "Add PWA support (manifest, icons, service worker) so the app is installable on Android and has offline shell caching.",
-      "acceptanceCriteria": [
-        "The app serves a valid web app manifest with name, short_name, start_url, display=standalone, theme_color/background_color aligned to the existing Nothing-style theme.",
-        "The app includes required PWA icons (at least 192x192 and 512x512) and they appear in the manifest.",
-        "On Android Chrome, the browser offers an install option (or the app is installable via “Add to Home screen”), and launching the installed app opens in standalone mode (no browser UI).",
-        "A service worker is registered successfully in production builds and caches the app shell so the UI loads when offline (audio playback can remain online-only if needed)."
-      ],
-      "file_operations": [
+          "path": "frontend/android-wrapper/build.gradle",
+          "operation": "create",
+          "description": "Create top-level Android wrapper Gradle build configuration to produce an installable APK that packages the web build as app assets."
+        },
+        {
+          "path": "frontend/android-wrapper/app/build.gradle",
+          "operation": "create",
+          "description": "Create app module Gradle configuration for a WebView/TWA-style wrapper that loads app content from packaged assets (offline) and exposes only required network capabilities."
+        },
+        {
+          "path": "frontend/android-wrapper/app/src/main/AndroidManifest.xml",
+          "operation": "create",
+          "description": "Add Android manifest for the wrapper app (English label if set), configured to launch the wrapper activity and allow loading local packaged assets offline."
+        },
+        {
+          "path": "frontend/android-wrapper/app/src/main/java/com/nothingplayer/offlinewrapper/MainActivity.kt",
+          "operation": "create",
+          "description": "Implement the wrapper activity to load the bundled web app from within the APK using an asset-serving approach suitable for offline usage (e.g., local asset loader mapped into WebView), and ensure it starts directly on the app shell."
+        },
+        {
+          "path": "frontend/android-wrapper/app/src/main/assets/README.txt",
+          "operation": "create",
+          "description": "Add a placeholder note explaining that the web build output should be copied/synced into this assets location as part of the build process so the APK runs fully offline."
+        },
         {
           "path": "frontend/public/manifest.webmanifest",
-          "operation": "create",
-          "description": "Create a Web App Manifest with English name/short_name, start_url, display=standalone, and theme_color/background_color aligned to the existing Nothing-style theme."
-        },
-        {
-          "path": "frontend/public/icons/icon-192x192.png",
-          "operation": "create",
-          "description": "Add a 192x192 PWA icon referenced by the manifest."
-        },
-        {
-          "path": "frontend/public/icons/icon-512x512.png",
-          "operation": "create",
-          "description": "Add a 512x512 PWA icon referenced by the manifest."
-        },
-        {
-          "path": "frontend/public/sw.js",
-          "operation": "create",
-          "description": "Add a service worker that caches the app shell for offline loading (cache core HTML/CSS/JS and other critical static assets; audio can remain online-only)."
-        },
-        {
-          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Wire PWA metadata into the HTML (manifest link, theme-color, and icon links) using English-facing values where applicable."
+          "description": "Adjust PWA start/scope configuration to be compatible with being served from a packaged base path in a WebView (avoid assuming a hosted root path), while preserving current metadata."
         },
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Register the service worker from the React app (production builds only) and log registration failures without breaking the UI."
+          "description": "Update service worker registration to be resilient to non-root base paths (as commonly used by a packaged Android asset server) so the offline shell reliably registers and loads."
         }
       ]
     },
     {
-      "id": "REQ-15",
-      "summary": "Add an in-app “Install app” entry point that triggers the PWA install prompt when supported and shows concise English instructions otherwise.",
+      "id": "REQ-17",
+      "summary": "Provide a clear English offline mode UX: app shell loads, sample tracks play, and backend-dependent features show an offline message without unstable loading states.",
       "acceptanceCriteria": [
-        "When the browser fires the PWA install prompt event, the UI shows an “Install app” action that triggers the prompt.",
-        "If already installed or not supported, the UI does not show a broken install button; it shows either nothing or a short instruction message.",
-        "All user-facing copy for the install flow is in English."
+        "With the browser offline (or device in airplane mode), the app loads from cache and the bundled sample tracks can be played.",
+        "Actions that require backend calls (e.g., favorites/playlists persistence or profile fetching) do not crash the UI; they show an English explanation that the feature requires an internet connection.",
+        "No infinite loading spinners occur solely due to offline backend calls; the UI reaches a stable state."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/usePwaInstall.ts",
+          "path": "frontend/src/hooks/useNetworkStatus.ts",
           "operation": "create",
-          "description": "Create a hook to capture and manage the browser PWA install prompt event (beforeinstallprompt), detect installed state, and provide a safe install action."
+          "description": "Add a small hook that tracks online/offline state (navigator.onLine + online/offline events) and exposes a stable boolean for UI and query enabling."
         },
         {
-          "path": "frontend/src/components/pwa/InstallAppEntry.tsx",
+          "path": "frontend/src/components/offline/OfflineNotice.tsx",
           "operation": "create",
-          "description": "Add an in-app Install entry UI with English copy that conditionally shows an “Install app” action when supported, otherwise shows concise fallback instructions (or hides if appropriate)."
+          "description": "Create an English offline notice component to display a concise explanation that some features require an internet connection, while playback of bundled sample tracks still works."
         },
         {
           "path": "frontend/src/components/header/Header.tsx",
           "operation": "modify",
-          "description": "Wire the Install app entry point into the existing header UI so it is discoverable without introducing new routes."
+          "description": "Wire the OfflineNotice into the existing header area (no new routes) so users immediately see offline status messaging in English when the network is unavailable."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Update React Query hooks that call the backend to gracefully handle offline: avoid retries, avoid indefinite loading, disable/short-circuit queries when offline where appropriate, and surface a consistent error/empty-state signal for UI messaging."
+        },
+        {
+          "path": "frontend/src/components/library/LibrarySection.tsx",
+          "operation": "modify",
+          "description": "When offline, keep the library UI stable and readable and show an English message for persistence-related actions (favorites/playlists) rather than silently failing."
+        },
+        {
+          "path": "frontend/src/components/player/PlayerSection.tsx",
+          "operation": "modify",
+          "description": "Ensure offline playback UX remains stable: keep existing player error handling, and ensure any connectivity-related messages remain in English without blocking playback of bundled sample tracks."
+        },
+        {
+          "path": "frontend/src/components/auth/AuthGateNotice.tsx",
+          "operation": "modify",
+          "description": "Extend the notice logic to also communicate an English offline requirement message for sign-in/backend-dependent features when the device is offline (without adding new authentication flows)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-18",
+      "summary": "Expand service worker caching to ensure all required built static assets are available offline while excluding canister API traffic and preserving cache cleanup/versioning.",
+      "acceptanceCriteria": [
+        "After a normal online visit, a subsequent offline reload succeeds and loads the full UI without missing JS/CSS assets.",
+        "The service worker continues to avoid caching or intercepting requests to icp0.io/ic0.app canister API traffic.",
+        "Cache versioning/cleanup still works (old caches removed on activation)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/sw.js",
+          "operation": "modify",
+          "description": "Replace the small hard-coded precache list with an app-shell-focused offline strategy: cache the navigation shell and dynamically cache same-origin built static assets (JS/CSS/images/audio) on first load, add explicit caching for bundled sample audio, keep cache versioning and activation cleanup, and continue to bypass canister API traffic (icp0.io/ic0.app and local canister dev traffic)."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Ensure service worker registration uses a base-path-safe URL and does not break when served from a packaged asset origin/base path, improving offline reload reliability."
+        },
+        {
+          "path": "frontend/src/lib/tracks.ts",
+          "operation": "modify",
+          "description": "Confirm sample track asset URLs are compatible with offline caching and packaged-asset serving (avoid assumptions that would break when served from within an APK)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-19",
+      "summary": "Add English BUILD documentation describing how to produce the offline APK from the repo, including prerequisites, commands, and offline limitations.",
+      "acceptanceCriteria": [
+        "Documentation exists in-repo and is written in English.",
+        "The doc includes steps to build the web app, bundle it into the Android wrapper, and output an installable APK.",
+        "The doc explains expected offline limitations (e.g., backend features require connectivity) so behavior is not ambiguous."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/BUILD.md",
+          "operation": "create",
+          "description": "Write an English build guide covering: web build prerequisites/commands, how the Android wrapper consumes the built web output to produce an APK, the exact commands to build/install the APK, and a clear section on offline limitations (backend/Internet Identity dependent features require connectivity)."
+        },
+        {
+          "path": "frontend/android-wrapper/README.md",
+          "operation": "modify",
+          "description": "Cross-link to frontend/BUILD.md and include any wrapper-specific prerequisites (Android SDK/Gradle) and the exact wrapper build command sequence in English."
         }
       ]
     }

@@ -45,7 +45,7 @@ export function PlayerSection({ player }: PlayerSectionProps) {
   // Enhanced error message for backend connection issues
   const getErrorMessage = (errorMsg: string): string => {
     if (errorMsg.includes('canister') || errorMsg.includes('actor') || errorMsg.includes('not available')) {
-      return 'Unable to connect to backend service. Please refresh the page or try again later.';
+      return 'Unable to connect to backend service. Playback will continue with local tracks.';
     }
     return errorMsg;
   };

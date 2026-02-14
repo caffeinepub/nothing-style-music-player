@@ -8,6 +8,7 @@ import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from './hooks/useQueries';
 import { TRACKS } from './lib/tracks';
 import { SiCaffeine } from 'react-icons/si';
+import { Toaster } from './components/ui/sonner';
 
 function App() {
   const { identity } = useInternetIdentity();
@@ -32,8 +33,10 @@ function App() {
   // Register service worker for PWA support (production only)
   useEffect(() => {
     if ('serviceWorker' in navigator && import.meta.env.PROD) {
+      // Use relative path for service worker to work with different base paths
+      const swPath = new URL('/sw.js', window.location.origin).pathname;
       navigator.serviceWorker
-        .register('/sw.js')
+        .register(swPath, { scope: '/' })
         .then((registration) => {
           console.log('Service Worker registered:', registration);
         })
@@ -79,6 +82,8 @@ function App() {
         open={showProfileSetup}
         onComplete={() => setShowProfileSetup(false)}
       />
+
+      <Toaster />
     </div>
   );
 }

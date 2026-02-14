@@ -1,81 +1,119 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-14T03:42:44.233Z",
+  "generatedAt": "2026-02-14T03:54:11.710Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
-        "id": "REQ-13",
-        "summary": "Investigate and fix the reported production error “canister ID not resolved” so that opening the deployed URL works reliably and the frontend always targets the correct production canister (no localhost or unresolved canister references in production).",
+        "id": "REQ-16",
+        "summary": "Add an Android APK wrapper project that bundles the entire built web app for fully offline loading (no network needed to load the UI), using a WebView/Trusted Web Activity style wrapper that serves the app assets from within the APK.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/config.ts",
-          "frontend/src/config/canisterResolution.ts",
-          "frontend/src/utils/urlParams.ts",
-          "frontend/src/components/player/PlayerSection.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/config/canisterResolution.ts",
-          "frontend/src/components/player/PlayerSection.tsx"
-        ]
-      },
-      {
-        "id": "REQ-14",
-        "summary": "Add PWA support so the web app can be installed on Android (APK-like experience) by providing a Web App Manifest, required icons, and a service worker for offline shell caching, using English user-facing text.",
-        "status": "implemented",
-        "plannedFiles": [
+          "frontend/android-wrapper/README.md",
+          "frontend/android-wrapper/settings.gradle",
+          "frontend/android-wrapper/build.gradle",
+          "frontend/android-wrapper/app/build.gradle",
+          "frontend/android-wrapper/app/src/main/AndroidManifest.xml",
+          "frontend/android-wrapper/app/src/main/java/com/nothingplayer/offlinewrapper/MainActivity.kt",
+          "frontend/android-wrapper/app/src/main/assets/README.txt",
           "frontend/public/manifest.webmanifest",
-          "frontend/public/icons/icon-192x192.png",
-          "frontend/public/icons/icon-512x512.png",
-          "frontend/public/sw.js",
-          "frontend/index.html",
           "frontend/src/App.tsx"
         ],
         "matchedFiles": [
+          "frontend/android-wrapper/README.md",
+          "frontend/android-wrapper/settings.gradle",
+          "frontend/android-wrapper/build.gradle",
+          "frontend/android-wrapper/app/build.gradle",
+          "frontend/android-wrapper/app/src/main/AndroidManifest.xml",
+          "frontend/android-wrapper/app/src/main/java/com/nothingplayer/offlinewrapper/MainActivity.kt",
+          "frontend/android-wrapper/app/src/main/assets/README.txt",
           "frontend/public/manifest.webmanifest",
-          "frontend/public/sw.js",
-          "frontend/index.html",
           "frontend/src/App.tsx"
         ]
       },
       {
-        "id": "REQ-15",
-        "summary": "Add an in-app “Install app” entry point that guides Android users to install the PWA (and explains that it installs like an app). Show it only when installation is supported; otherwise show concise instructions (English).",
+        "id": "REQ-17",
+        "summary": "Update offline behavior so the app provides a clear, English offline mode experience when the network is unavailable: the app shell loads and sample tracks remain playable, while Internet Identity and backend-dependent features gracefully show an offline message rather than failing silently.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/usePwaInstall.ts",
-          "frontend/src/components/pwa/InstallAppEntry.tsx",
-          "frontend/src/components/header/Header.tsx"
+          "frontend/src/hooks/useNetworkStatus.ts",
+          "frontend/src/components/offline/OfflineNotice.tsx",
+          "frontend/src/components/header/Header.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/library/LibrarySection.tsx",
+          "frontend/src/components/player/PlayerSection.tsx",
+          "frontend/src/components/auth/AuthGateNotice.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/usePwaInstall.ts",
-          "frontend/src/components/pwa/InstallAppEntry.tsx",
-          "frontend/src/components/header/Header.tsx"
+          "frontend/src/hooks/useNetworkStatus.ts",
+          "frontend/src/components/offline/OfflineNotice.tsx",
+          "frontend/src/components/header/Header.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/library/LibrarySection.tsx",
+          "frontend/src/components/player/PlayerSection.tsx",
+          "frontend/src/components/auth/AuthGateNotice.tsx"
+        ]
+      },
+      {
+        "id": "REQ-18",
+        "summary": "Expand service worker caching to support fully offline app-shell usage by ensuring all required built static assets are cached and served offline (not just the small hard-coded list), while continuing to exclude canister API calls from caching.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/public/sw.js",
+          "frontend/src/App.tsx",
+          "frontend/src/lib/tracks.ts"
+        ],
+        "matchedFiles": [
+          "frontend/public/sw.js",
+          "frontend/src/App.tsx",
+          "frontend/src/lib/tracks.ts"
+        ]
+      },
+      {
+        "id": "REQ-19",
+        "summary": "Add a short English BUILD.md (or equivalent repo documentation) describing how to produce the offline APK from the repository, including prerequisites and the exact build steps/commands.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/BUILD.md",
+          "frontend/android-wrapper/README.md"
+        ],
+        "matchedFiles": [
+          "frontend/BUILD.md",
+          "frontend/android-wrapper/README.md"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/index.html",
+    "frontend/BUILD.md",
+    "frontend/android-wrapper/README.md",
+    "frontend/android-wrapper/app/build.gradle",
+    "frontend/android-wrapper/app/src/main/AndroidManifest.xml",
+    "frontend/android-wrapper/app/src/main/assets/README.txt",
+    "frontend/android-wrapper/app/src/main/java/com/nothingplayer/offlinewrapper/MainActivity.kt",
+    "frontend/android-wrapper/build.gradle",
+    "frontend/android-wrapper/settings.gradle",
     "frontend/public/manifest.webmanifest",
     "frontend/public/sw.js",
     "frontend/src/App.tsx",
+    "frontend/src/components/auth/AuthGateNotice.tsx",
     "frontend/src/components/header/Header.tsx",
+    "frontend/src/components/library/LibrarySection.tsx",
+    "frontend/src/components/offline/OfflineNotice.tsx",
     "frontend/src/components/player/PlayerSection.tsx",
-    "frontend/src/components/pwa/InstallAppEntry.tsx",
-    "frontend/src/config/canisterResolution.ts",
-    "frontend/src/hooks/usePwaInstall.ts",
+    "frontend/src/hooks/useNetworkStatus.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/lib/tracks.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

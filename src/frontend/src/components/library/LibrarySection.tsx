@@ -5,6 +5,7 @@ import { PlaylistReorderControls } from './PlaylistReorderControls';
 import { PlaylistManager } from './PlaylistManager';
 import { AuthGateNotice } from '../auth/AuthGateNotice';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
+import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { 
   useGetFavorites, 
   useSaveFavorites, 
@@ -17,6 +18,7 @@ import {
 import { TRACKS } from '../../lib/tracks';
 import type { Track, TrackId } from '../../lib/tracks';
 import type { useAudioPlayer } from '../../hooks/useAudioPlayer';
+import { toast } from 'sonner';
 
 interface LibrarySectionProps {
   player: ReturnType<typeof useAudioPlayer>;
@@ -24,6 +26,7 @@ interface LibrarySectionProps {
 
 export function LibrarySection({ player }: LibrarySectionProps) {
   const { identity } = useInternetIdentity();
+  const { isOnline } = useNetworkStatus();
   const { data: favorites = [], isLoading: favoritesLoading } = useGetFavorites();
   const { data: legacyPlaylist = [], isLoading: legacyPlaylistLoading } = useGetPlaylist();
   const { data: playlistNames = [], isLoading: playlistNamesLoading } = useGetPlaylistNames();
@@ -41,6 +44,7 @@ export function LibrarySection({ player }: LibrarySectionProps) {
   useEffect(() => {
     if (
       isAuthenticated &&
+      isOnline &&
       !playlistNamesLoading &&
       !legacyPlaylistLoading &&
       !migrationDone &&
@@ -57,7 +61,7 @@ export function LibrarySection({ player }: LibrarySectionProps) {
         }
       );
     }
-  }, [isAuthenticated, playlistNames, legacyPlaylist, playlistNamesLoading, legacyPlaylistLoading, migrationDone]);
+  }, [isAuthenticated, isOnline, playlistNames, legacyPlaylist, playlistNamesLoading, legacyPlaylistLoading, migrationDone]);
 
   // Set active playlist name
   useEffect(() => {
@@ -89,6 +93,7 @@ export function LibrarySection({ player }: LibrarySectionProps) {
   useEffect(() => {
     if (
       isAuthenticated &&
+      isOnline &&
       activePlaylistName &&
       activePlaylistTracks.length === 0 &&
       !activePlaylistLoading &&
@@ -97,20 +102,32 @@ export function LibrarySection({ player }: LibrarySectionProps) {
       const defaultOrder = TRACKS.map(t => t.id);
       updatePlaylistTracks.mutate({ name: activePlaylistName, tracks: defaultOrder });
     }
-  }, [isAuthenticated, activePlaylistName, activePlaylistTracks, activePlaylistLoading, playlistNames]);
+  }, [isAuthenticated, isOnline, activePlaylistName, activePlaylistTracks, activePlaylistLoading, playlistNames]);
 
   const handleToggleFavorite = (trackId: TrackId) => {
     if (!isAuthenticated) return;
+    if (!isOnline) {
+      toast.error('Cannot save favorites while offline');
+      return;
+    }
 
     const newFavorites = favorites.includes(trackId)
       ? favorites.filter(id => id !== trackId)
       : [...favorites, trackId];
 
-    saveFavorites.mutate(newFavorites);
+    saveFavorites.mutate(newFavorites, {
+      onError: () => {
+        toast.error('Failed to save favorites');
+      },
+    });
   };
 
   const handleMoveTrack = (index: number, direction: 'up' | 'down') => {
     if (!isAuthenticated || !activePlaylistName) return;
+    if (!isOnline) {
+      toast.error('Cannot reorder playlist while offline');
+      return;
+    }
 
     const newOrder = [...orderedTracks.map(t => t.id)];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
@@ -118,21 +135,41 @@ export function LibrarySection({ player }: LibrarySectionProps) {
     if (targetIndex < 0 || targetIndex >= newOrder.length) return;
 
     [newOrder[index], newOrder[targetIndex]] = [newOrder[targetIndex], newOrder[index]];
-    updatePlaylistTracks.mutate({ name: activePlaylistName, tracks: newOrder });
+    updatePlaylistTracks.mutate({ name: activePlaylistName, tracks: newOrder }, {
+      onError: () => {
+        toast.error('Failed to reorder playlist');
+      },
+    });
   };
 
   const handleAddToPlaylist = (trackId: TrackId) => {
     if (!isAuthenticated || !activePlaylistName) return;
+    if (!isOnline) {
+      toast.error('Cannot add to playlist while offline');
+      return;
+    }
 
     const newTracks = [...activePlaylistTracks, trackId];
-    updatePlaylistTracks.mutate({ name: activePlaylistName, tracks: newTracks });
+    updatePlaylistTracks.mutate({ name: activePlaylistName, tracks: newTracks }, {
+      onError: () => {
+        toast.error('Failed to add track to playlist');
+      },
+    });
   };
 
   const handleRemoveFromPlaylist = (trackId: TrackId) => {
     if (!isAuthenticated || !activePlaylistName) return;
+    if (!isOnline) {
+      toast.error('Cannot remove from playlist while offline');
+      return;
+    }
 
     const newTracks = activePlaylistTracks.filter(id => id !== trackId);
-    updatePlaylistTracks.mutate({ name: activePlaylistName, tracks: newTracks });
+    updatePlaylistTracks.mutate({ name: activePlaylistName, tracks: newTracks }, {
+      onError: () => {
+        toast.error('Failed to remove track from playlist');
+      },
+    });
   };
 
   const isInPlaylist = (trackId: TrackId) => {
@@ -165,66 +202,88 @@ export function LibrarySection({ player }: LibrarySectionProps) {
             </p>
           </div>
         ) : null}
-        
-        {orderedTracks.map((track, index) => (
-          <div key={track.id} className="flex items-center">
-            <div className="flex-1">
-              <TrackRow
-                track={track}
-                isPlaying={player.isPlaying}
-                isCurrent={player.currentTrackId === track.id}
-                isFavorite={favorites.includes(track.id)}
-                isInPlaylist={isInPlaylist(track.id)}
-                onPlay={() => player.play(track.id)}
-                onToggleFavorite={() => handleToggleFavorite(track.id)}
-                onAddToPlaylist={() => handleAddToPlaylist(track.id)}
-                onRemoveFromPlaylist={() => handleRemoveFromPlaylist(track.id)}
-                canFavorite={isAuthenticated}
-                canManagePlaylist={isAuthenticated}
-              />
-            </div>
-            {isAuthenticated && isInPlaylist(track.id) && (
-              <div className="pr-2">
-                <PlaylistReorderControls
-                  onMoveUp={() => handleMoveTrack(index, 'up')}
-                  onMoveDown={() => handleMoveTrack(index, 'down')}
-                  canMoveUp={index > 0}
-                  canMoveDown={index < orderedTracks.length - 1}
-                  disabled={updatePlaylistTracks.isPending}
-                />
-              </div>
-            )}
-          </div>
-        ))}
 
-        {/* Show all tracks not in playlist */}
         {isAuthenticated && activePlaylistTracks.length > 0 && (
-          <>
-            <div className="p-3 border-t-2 border-border bg-muted/30">
+          <div className="border-b border-border">
+            <div className="p-3 bg-muted/30">
               <h4 className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
-                Available Tracks
+                Playlist Tracks
               </h4>
             </div>
-            {TRACKS.filter(track => !isInPlaylist(track.id)).map((track) => (
-              <div key={track.id} className="flex items-center">
+            {orderedTracks.map((track, index) => (
+              <div key={track.id} className="flex items-center border-b border-border last:border-b-0">
                 <div className="flex-1">
                   <TrackRow
                     track={track}
                     isPlaying={player.isPlaying}
-                    isCurrent={player.currentTrackId === track.id}
+                    isCurrent={player.currentTrack?.id === track.id}
                     isFavorite={favorites.includes(track.id)}
-                    isInPlaylist={false}
+                    isInPlaylist={true}
                     onPlay={() => player.play(track.id)}
                     onToggleFavorite={() => handleToggleFavorite(track.id)}
-                    onAddToPlaylist={() => handleAddToPlaylist(track.id)}
+                    onAddToPlaylist={() => {}}
                     onRemoveFromPlaylist={() => handleRemoveFromPlaylist(track.id)}
                     canFavorite={isAuthenticated}
                     canManagePlaylist={isAuthenticated}
                   />
                 </div>
+                <PlaylistReorderControls
+                  onMoveUp={() => handleMoveTrack(index, 'up')}
+                  onMoveDown={() => handleMoveTrack(index, 'down')}
+                  canMoveUp={index > 0}
+                  canMoveDown={index < orderedTracks.length - 1}
+                  disabled={!isOnline}
+                />
               </div>
             ))}
-          </>
+          </div>
+        )}
+
+        {isAuthenticated && (
+          <div>
+            <div className="p-3 bg-muted/30 border-b border-border">
+              <h4 className="font-mono text-xs tracking-wide uppercase text-muted-foreground">
+                {activePlaylistTracks.length > 0 ? 'Available Tracks' : 'All Tracks'}
+              </h4>
+            </div>
+            {TRACKS.filter(track => !isInPlaylist(track.id)).map((track) => (
+              <TrackRow
+                key={track.id}
+                track={track}
+                isPlaying={player.isPlaying}
+                isCurrent={player.currentTrack?.id === track.id}
+                isFavorite={favorites.includes(track.id)}
+                isInPlaylist={false}
+                onPlay={() => player.play(track.id)}
+                onToggleFavorite={() => handleToggleFavorite(track.id)}
+                onAddToPlaylist={() => handleAddToPlaylist(track.id)}
+                onRemoveFromPlaylist={() => {}}
+                canFavorite={isAuthenticated}
+                canManagePlaylist={isAuthenticated}
+              />
+            ))}
+          </div>
+        )}
+
+        {!isAuthenticated && (
+          <div>
+            {TRACKS.map((track) => (
+              <TrackRow
+                key={track.id}
+                track={track}
+                isPlaying={player.isPlaying}
+                isCurrent={player.currentTrack?.id === track.id}
+                isFavorite={false}
+                isInPlaylist={false}
+                onPlay={() => player.play(track.id)}
+                onToggleFavorite={() => {}}
+                onAddToPlaylist={() => {}}
+                onRemoveFromPlaylist={() => {}}
+                canFavorite={false}
+                canManagePlaylist={false}
+              />
+            ))}
+          </div>
         )}
       </div>
     </SectionCard>

@@ -1,13 +1,16 @@
 import React from 'react';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from '../../hooks/useQueries';
+import { useNetworkStatus } from '../../hooks/useNetworkStatus';
 import { LoginButton } from '../auth/LoginButton';
 import { InstallAppEntry } from '../pwa/InstallAppEntry';
+import { OfflineNotice } from '../offline/OfflineNotice';
 import { Circle } from 'lucide-react';
 
 export function Header() {
   const { identity } = useInternetIdentity();
   const { data: userProfile } = useGetCallerUserProfile();
+  const { isOnline } = useNetworkStatus();
 
   return (
     <header className="border-b border-border bg-background">
@@ -28,6 +31,12 @@ export function Header() {
             <LoginButton />
           </div>
         </div>
+        
+        {!isOnline && (
+          <div className="mt-4">
+            <OfflineNotice />
+          </div>
+        )}
       </div>
     </header>
   );

@@ -1,14 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 7,
+  "projectStateVersion": 9,
   "summary": "Build a Nothing-style music player app.",
   "architectural_notes": [
-    "Consider packaging strategy for Android APK (e.g., PWA via Trusted Web Activity, Capacitor/Cordova wrapper) and required build/release pipeline changes."
+    "Consider packaging strategy for Android APK (e.g., PWA via Trusted Web Activity, Capacitor/Cordova wrapper) and required build/release pipeline changes.",
+    "User chose APK option B: package a fully offline Android app by bundling the entire website inside the APK (larger binary; updates require rebuilding/releasing a new APK)."
   ],
   "known_issues": [
     "Users report “canister ID not resolved” when opening the deployed app URL; needs investigation of deployment URL/config and any in-app/local canister references."
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
       "id": "feature-create-a-nothing-inspired-visual-design-system-for-the-app-high-contrast-minimal-industrial-feel-and-apply-it-consistently-across-all-screens-and-components-using-tailwind-css",
@@ -111,6 +112,38 @@
       "title": "Add an in-app “Install app” entry point that guides Android users to install the PWA (and explains that it installs like an app). Show it only when installation is supported; otherwise show concise instructions (English).",
       "reqIds": [
         "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-android-apk-wrapper-project-that-bundles-the-entire-built-web-app-for-fully-offline-loading-no-network-needed-to-load-the-ui-using-a-webview-trusted-web-activity-style-wrapper-that-serves-the-app-assets-from-within-the-apk",
+      "title": "Add an Android APK wrapper project that bundles the entire built web app for fully offline loading (no network needed to load the UI), using a WebView/Trusted Web Activity style wrapper that serves the app assets from within the APK.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-offline-behavior-so-the-app-provides-a-clear-english-offline-mode-experience-when-the-network-is-unavailable-the-app-shell-loads-and-sample-tracks-remain-playable-while-internet-identity-and-backend-dependent-features-gracefully-show-an-offline-message-rather-than-failing-silently",
+      "title": "Update offline behavior so the app provides a clear, English offline mode experience when the network is unavailable: the app shell loads and sample tracks remain playable, while Internet Identity and backend-dependent features gracefully show an offline message rather than failing silently.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-expand-service-worker-caching-to-support-fully-offline-app-shell-usage-by-ensuring-all-required-built-static-assets-are-cached-and-served-offline-not-just-the-small-hard-coded-list-while-continuing-to-exclude-canister-api-calls-from-caching",
+      "title": "Expand service worker caching to support fully offline app-shell usage by ensuring all required built static assets are cached and served offline (not just the small hard-coded list), while continuing to exclude canister API calls from caching.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-short-english-build-md-or-equivalent-repo-documentation-describing-how-to-produce-the-offline-apk-from-the-repository-including-prerequisites-and-the-exact-build-steps-commands",
+      "title": "Add a short English BUILD.md (or equivalent repo documentation) describing how to produce the offline APK from the repository, including prerequisites and the exact build steps/commands.",
+      "reqIds": [
+        "REQ-19"
       ],
       "version": 1
     }

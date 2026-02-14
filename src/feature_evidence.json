@@ -2,32 +2,17 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-investigate-and-fix-the-reported-production-error-canister-id-not-resolved-so-that-opening-the-deployed-url-works-reliably-and-the-frontend-always-targets-the-correct-production-canister-no-localhost-or-unresolved-canister-references-in-production",
-      "featureTitle": "Investigate and fix the reported production error “canister ID not resolved” so that opening the deployed URL works reliably and the frontend always targets the correct production canister (no localhost or unresolved canister references in production).",
+      "featureId": "feature-add-an-android-apk-wrapper-project-that-bundles-the-entire-built-web-app-for-fully-offline-loading-no-network-needed-to-load-the-ui-using-a-webview-trusted-web-activity-style-wrapper-that-serves-the-app-assets-from-within-the-apk",
+      "featureTitle": "Add an Android APK wrapper project that bundles the entire built web app for fully offline loading (no network needed to load the UI), using a WebView/Trusted Web Activity style wrapper that serves the app assets from within the APK.",
       "files": [
-        "frontend/src/components/player/PlayerSection.tsx",
-        "frontend/src/config/canisterResolution.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-13"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-pwa-support-so-the-web-app-can-be-installed-on-android-apk-like-experience-by-providing-a-web-app-manifest-required-icons-and-a-service-worker-for-offline-shell-caching-using-english-user-facing-text",
-      "featureTitle": "Add PWA support so the web app can be installed on Android (APK-like experience) by providing a Web App Manifest, required icons, and a service worker for offline shell caching, using English user-facing text.",
-      "files": [
-        "frontend/index.html",
+        "frontend/android-wrapper/README.md",
+        "frontend/android-wrapper/app/build.gradle",
+        "frontend/android-wrapper/app/src/main/AndroidManifest.xml",
+        "frontend/android-wrapper/app/src/main/assets/README.txt",
+        "frontend/android-wrapper/app/src/main/java/com/nothingplayer/offlinewrapper/MainActivity.kt",
+        "frontend/android-wrapper/build.gradle",
+        "frontend/android-wrapper/settings.gradle",
         "frontend/public/manifest.webmanifest",
-        "frontend/public/sw.js",
         "frontend/src/App.tsx"
       ],
       "components": [
@@ -39,17 +24,21 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-14"
+        "REQ-16"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-an-in-app-install-app-entry-point-that-guides-android-users-to-install-the-pwa-and-explains-that-it-installs-like-an-app-show-it-only-when-installation-is-supported-otherwise-show-concise-instructions-english",
-      "featureTitle": "Add an in-app “Install app” entry point that guides Android users to install the PWA (and explains that it installs like an app). Show it only when installation is supported; otherwise show concise instructions (English).",
+      "featureId": "feature-update-offline-behavior-so-the-app-provides-a-clear-english-offline-mode-experience-when-the-network-is-unavailable-the-app-shell-loads-and-sample-tracks-remain-playable-while-internet-identity-and-backend-dependent-features-gracefully-show-an-offline-message-rather-than-failing-silently",
+      "featureTitle": "Update offline behavior so the app provides a clear, English offline mode experience when the network is unavailable: the app shell loads and sample tracks remain playable, while Internet Identity and backend-dependent features gracefully show an offline message rather than failing silently.",
       "files": [
+        "frontend/src/components/auth/AuthGateNotice.tsx",
         "frontend/src/components/header/Header.tsx",
-        "frontend/src/components/pwa/InstallAppEntry.tsx",
-        "frontend/src/hooks/usePwaInstall.ts"
+        "frontend/src/components/library/LibrarySection.tsx",
+        "frontend/src/components/offline/OfflineNotice.tsx",
+        "frontend/src/components/player/PlayerSection.tsx",
+        "frontend/src/hooks/useNetworkStatus.ts",
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -60,7 +49,48 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-15"
+        "REQ-17"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-expand-service-worker-caching-to-support-fully-offline-app-shell-usage-by-ensuring-all-required-built-static-assets-are-cached-and-served-offline-not-just-the-small-hard-coded-list-while-continuing-to-exclude-canister-api-calls-from-caching",
+      "featureTitle": "Expand service worker caching to support fully offline app-shell usage by ensuring all required built static assets are cached and served offline (not just the small hard-coded list), while continuing to exclude canister API calls from caching.",
+      "files": [
+        "frontend/public/sw.js",
+        "frontend/src/App.tsx",
+        "frontend/src/lib/tracks.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-18"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-short-english-build-md-or-equivalent-repo-documentation-describing-how-to-produce-the-offline-apk-from-the-repository-including-prerequisites-and-the-exact-build-steps-commands",
+      "featureTitle": "Add a short English BUILD.md (or equivalent repo documentation) describing how to produce the offline APK from the repository, including prerequisites and the exact build steps/commands.",
+      "files": [
+        "frontend/BUILD.md",
+        "frontend/android-wrapper/README.md"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-19"
       ],
       "confidence": "high"
     }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
-import { Lock } from 'lucide-react';
+import { useNetworkStatus } from '../../hooks/useNetworkStatus';
+import { Lock, WifiOff } from 'lucide-react';
 
 interface AuthGateNoticeProps {
   feature: string;
@@ -8,8 +9,18 @@ interface AuthGateNoticeProps {
 
 export function AuthGateNotice({ feature }: AuthGateNoticeProps) {
   const { identity } = useInternetIdentity();
+  const { isOnline } = useNetworkStatus();
 
   if (identity) return null;
+
+  if (!isOnline) {
+    return (
+      <div className="flex items-center gap-2 text-xs text-warning font-mono">
+        <WifiOff className="h-3 w-3" />
+        <span>Offline - sign in requires internet</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
@@ -18,4 +29,3 @@ export function AuthGateNotice({ feature }: AuthGateNoticeProps) {
     </div>
   );
 }
-
