@@ -1,0 +1,92 @@
+{
+  "kind": "build_request",
+  "title": "Fix production “canister ID not resolved” issue and make the app installable on Android (PWA / APK-like)",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-13",
+      "text": "Investigate and fix the reported production error “canister ID not resolved” so that opening the deployed URL works reliably and the frontend always targets the correct production canister (no localhost or unresolved canister references in production).",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Is says cnister ID not resolved",
+          "U check and solve everything"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Opening https://nothing-style-music-player.icp0.io in a fresh browser session does not show “canister ID not resolved”.",
+        "The frontend’s backend actor initialization uses production canister configuration when running on the production domain and does not depend on localhost-only or dev-only configuration.",
+        "Core flows (load app, play bundled tracks, sign in with Internet Identity, view playlists, toggle favorites) work on the production URL without console errors related to canister resolution."
+      ]
+    },
+    {
+      "id": "REQ-14",
+      "text": "Add PWA support so the web app can be installed on Android (APK-like experience) by providing a Web App Manifest, required icons, and a service worker for offline shell caching, using English user-facing text.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "I want this app to be downloadable like APK"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The app serves a valid web app manifest with name, short_name, start_url, display=standalone, theme_color/background_color aligned to the existing Nothing-style theme.",
+        "The app includes required PWA icons (at least 192x192 and 512x512) and they appear in the manifest.",
+        "On Android Chrome, the browser offers an install option (or the app is installable via “Add to Home screen”), and launching the installed app opens in standalone mode (no browser UI).",
+        "A service worker is registered successfully in production builds and caches the app shell so the UI loads when offline (audio playback can remain online-only if needed)."
+      ]
+    },
+    {
+      "id": "REQ-15",
+      "text": "Add an in-app “Install app” entry point that guides Android users to install the PWA (and explains that it installs like an app). Show it only when installation is supported; otherwise show concise instructions (English).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "I want to download",
+          "I want this app to be downloadable like APK"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When the browser fires the PWA install prompt event, the UI shows an “Install app” action that triggers the prompt.",
+        "If already installed or not supported, the UI does not show a broken install button; it shows either nothing or a short instruction message.",
+        "All user-facing copy for the install flow is in English."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not edit files in frontend immutablePaths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui (compose instead).",
+    "Backend must remain a single Motoko actor with all logic in backend/main.mo; only add/modify backend/migration.mo if state upgrade is required."
+  ],
+  "nonGoals": [
+    "Generating and delivering a native Android APK binary directly from this project build pipeline.",
+    "Adding third-party authentication providers beyond Internet Identity.",
+    "Adding real-time features (WebSockets/push notifications)."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [
+      "Make the deployed Internet Computer app load reliably without “canister ID not resolved”.",
+      "Make the app installable on Android with an APK-like experience via PWA install."
+    ],
+    "goalsToRemove": [],
+    "preferencesToAdd": [
+      "Use English for user-facing text."
+    ],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
+  }
+}

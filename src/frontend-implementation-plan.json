@@ -1,0 +1,106 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Production canister resolution fix + Android-installable PWA",
+  "requirements": [
+    {
+      "id": "REQ-13",
+      "summary": "Fix production “canister ID not resolved” by ensuring the frontend always initializes the backend actor with production canister configuration on production domains.",
+      "acceptanceCriteria": [
+        "Opening https://nothing-style-music-player.icp0.io in a fresh browser session does not show “canister ID not resolved”.",
+        "The frontend’s backend actor initialization uses production canister configuration when running on the production domain and does not depend on localhost-only or dev-only configuration.",
+        "Core flows (load app, play bundled tracks, sign in with Internet Identity, view playlists, toggle favorites) work on the production URL without console errors related to canister resolution."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/config.ts",
+          "operation": "modify",
+          "description": "Harden backend actor configuration selection so production domains (e.g., *.icp0.io / *.ic0.app) always use the deployed backend canister ID and correct host, and never fall back to localhost or unresolved canister references."
+        },
+        {
+          "path": "frontend/src/config/canisterResolution.ts",
+          "operation": "create",
+          "description": "Add a small environment/domain resolution utility (production vs local) that returns stable, explicit canister configuration for actor creation (e.g., domain-based host selection and canister ID source)."
+        },
+        {
+          "path": "frontend/src/utils/urlParams.ts",
+          "operation": "modify",
+          "description": "Ensure any persisted URL/session parameters used for bootstrapping do not interfere with production canister configuration (e.g., validate/guard optional parameters so misconfiguration cannot happen from stale session state)."
+        },
+        {
+          "path": "frontend/src/components/player/PlayerSection.tsx",
+          "operation": "modify",
+          "description": "Add a user-friendly, English fallback error message for failures caused by misconfigured backend targeting (e.g., unresolved canister) so production issues are visible without breaking the whole UI."
+        }
+      ]
+    },
+    {
+      "id": "REQ-14",
+      "summary": "Add PWA support (manifest, icons, service worker) so the app is installable on Android and has offline shell caching.",
+      "acceptanceCriteria": [
+        "The app serves a valid web app manifest with name, short_name, start_url, display=standalone, theme_color/background_color aligned to the existing Nothing-style theme.",
+        "The app includes required PWA icons (at least 192x192 and 512x512) and they appear in the manifest.",
+        "On Android Chrome, the browser offers an install option (or the app is installable via “Add to Home screen”), and launching the installed app opens in standalone mode (no browser UI).",
+        "A service worker is registered successfully in production builds and caches the app shell so the UI loads when offline (audio playback can remain online-only if needed)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/manifest.webmanifest",
+          "operation": "create",
+          "description": "Create a Web App Manifest with English name/short_name, start_url, display=standalone, and theme_color/background_color aligned to the existing Nothing-style theme."
+        },
+        {
+          "path": "frontend/public/icons/icon-192x192.png",
+          "operation": "create",
+          "description": "Add a 192x192 PWA icon referenced by the manifest."
+        },
+        {
+          "path": "frontend/public/icons/icon-512x512.png",
+          "operation": "create",
+          "description": "Add a 512x512 PWA icon referenced by the manifest."
+        },
+        {
+          "path": "frontend/public/sw.js",
+          "operation": "create",
+          "description": "Add a service worker that caches the app shell for offline loading (cache core HTML/CSS/JS and other critical static assets; audio can remain online-only)."
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Wire PWA metadata into the HTML (manifest link, theme-color, and icon links) using English-facing values where applicable."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Register the service worker from the React app (production builds only) and log registration failures without breaking the UI."
+        }
+      ]
+    },
+    {
+      "id": "REQ-15",
+      "summary": "Add an in-app “Install app” entry point that triggers the PWA install prompt when supported and shows concise English instructions otherwise.",
+      "acceptanceCriteria": [
+        "When the browser fires the PWA install prompt event, the UI shows an “Install app” action that triggers the prompt.",
+        "If already installed or not supported, the UI does not show a broken install button; it shows either nothing or a short instruction message.",
+        "All user-facing copy for the install flow is in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/usePwaInstall.ts",
+          "operation": "create",
+          "description": "Create a hook to capture and manage the browser PWA install prompt event (beforeinstallprompt), detect installed state, and provide a safe install action."
+        },
+        {
+          "path": "frontend/src/components/pwa/InstallAppEntry.tsx",
+          "operation": "create",
+          "description": "Add an in-app Install entry UI with English copy that conditionally shows an “Install app” action when supported, otherwise shows concise fallback instructions (or hides if appropriate)."
+        },
+        {
+          "path": "frontend/src/components/header/Header.tsx",
+          "operation": "modify",
+          "description": "Wire the Install app entry point into the existing header UI so it is discoverable without introducing new routes."
+        }
+      ]
+    }
+  ]
+}

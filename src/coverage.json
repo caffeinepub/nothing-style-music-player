@@ -1,0 +1,84 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-14T03:42:44.233Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 3,
+    "implemented": 3,
+    "items": [
+      {
+        "id": "REQ-13",
+        "summary": "Investigate and fix the reported production error “canister ID not resolved” so that opening the deployed URL works reliably and the frontend always targets the correct production canister (no localhost or unresolved canister references in production).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/config.ts",
+          "frontend/src/config/canisterResolution.ts",
+          "frontend/src/utils/urlParams.ts",
+          "frontend/src/components/player/PlayerSection.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/config/canisterResolution.ts",
+          "frontend/src/components/player/PlayerSection.tsx"
+        ]
+      },
+      {
+        "id": "REQ-14",
+        "summary": "Add PWA support so the web app can be installed on Android (APK-like experience) by providing a Web App Manifest, required icons, and a service worker for offline shell caching, using English user-facing text.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/public/manifest.webmanifest",
+          "frontend/public/icons/icon-192x192.png",
+          "frontend/public/icons/icon-512x512.png",
+          "frontend/public/sw.js",
+          "frontend/index.html",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/public/manifest.webmanifest",
+          "frontend/public/sw.js",
+          "frontend/index.html",
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-15",
+        "summary": "Add an in-app “Install app” entry point that guides Android users to install the PWA (and explains that it installs like an app). Show it only when installation is supported; otherwise show concise instructions (English).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/usePwaInstall.ts",
+          "frontend/src/components/pwa/InstallAppEntry.tsx",
+          "frontend/src/components/header/Header.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/usePwaInstall.ts",
+          "frontend/src/components/pwa/InstallAppEntry.tsx",
+          "frontend/src/components/header/Header.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "backend/main.mo",
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/index.html",
+    "frontend/public/manifest.webmanifest",
+    "frontend/public/sw.js",
+    "frontend/src/App.tsx",
+    "frontend/src/components/header/Header.tsx",
+    "frontend/src/components/player/PlayerSection.tsx",
+    "frontend/src/components/pwa/InstallAppEntry.tsx",
+    "frontend/src/config/canisterResolution.ts",
+    "frontend/src/hooks/usePwaInstall.ts",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

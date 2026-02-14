@@ -1,2 +1,3 @@
-# nothing-style-music-player
-Exported from Caffeine project: Nothing-style music player
+## 
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`

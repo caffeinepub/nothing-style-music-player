@@ -1,0 +1,73 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-14T03:42:44.230Z",
+  "summary": "PWA groundwork (manifest, service worker registration, and an install button hook/component) was added, but key parts of the production canister resolution fix are not evidenced as wired into actor initialization, required PWA icon assets are not shown as added, and the in-app install UX does not provide fallback instructions when install is not supported. Several unrelated backend/frontend feature changes appear in the diff that were not requested.",
+  "missing_requirements": [
+    {
+      "id": "REQ-13",
+      "requirement": "Fix production “canister ID not resolved” so the deployed URL reliably targets the correct production canister (no localhost/unresolved references) and core flows work without canister resolution console errors.",
+      "reason": "A new canister resolution utility was added, but the diff summary does not show it being used in backend actor initialization (likely in immutable hooks like useActor/useInternetIdentity which were not modified). Without wiring, the production error may persist.",
+      "evidence": [
+        "frontend/src/config/canisterResolution.ts",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "id": "REQ-14",
+      "requirement": "Include required PWA icons (at least 192x192 and 512x512) and reference them in the manifest so the app is installable on Android.",
+      "reason": "The manifest and HTML reference icons under /icons/, but the diff summary does not show the actual icon image files being added to the repo (only references).",
+      "evidence": [
+        "frontend/public/manifest.webmanifest",
+        "frontend/index.html",
+        "frontend/public/sw.js"
+      ]
+    },
+    {
+      "id": "REQ-15",
+      "requirement": "If already installed or not supported, do not show a broken install button; show either nothing or a short instruction message (English).",
+      "reason": "InstallAppEntry returns null when not installable and not installed, providing no instruction message for unsupported browsers. Instructions are only shown after a failed prompt attempt, which won’t occur if the browser never fires the install prompt event.",
+      "evidence": [
+        "frontend/src/components/pwa/InstallAppEntry.tsx"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Backend authorization gating and expanded user/profile/favorites/playlist logic changes beyond the requested canister-resolution and PWA work.",
+      "reason": "The BuildRequest focuses on fixing production canister resolution and adding PWA/install UX; it does not request backend authorization or playlist/profile logic changes.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "description": "Enhanced player error message mapping for backend connection issues.",
+      "reason": "Not requested; REQ-13 asks to fix canister resolution rather than add UI-level error message remapping.",
+      "evidence": [
+        "frontend/src/components/player/PlayerSection.tsx"
+      ]
+    },
+    {
+      "description": "Footer attribution changes (caffeine.ai link and 'Built with' footer content).",
+      "reason": "Not requested by any of REQ-13/14/15.",
+      "evidence": [
+        "frontend/src/App.tsx"
+      ]
+    }
+  ],
+  "confidence": 0.72,
+  "changed_files": [
+    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/index.html",
+    "frontend/public/manifest.webmanifest",
+    "frontend/public/sw.js",
+    "frontend/src/App.tsx",
+    "frontend/src/components/header/Header.tsx",
+    "frontend/src/components/player/PlayerSection.tsx",
+    "frontend/src/components/pwa/InstallAppEntry.tsx",
+    "frontend/src/config/canisterResolution.ts",
+    "frontend/src/hooks/usePwaInstall.ts",
+    "project_state.json"
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 7,
+  "summary": "Build a Nothing-style music player app.",
+  "architectural_notes": [
+    "Consider packaging strategy for Android APK (e.g., PWA via Trusted Web Activity, Capacitor/Cordova wrapper) and required build/release pipeline changes."
+  ],
+  "known_issues": [
+    "Users report “canister ID not resolved” when opening the deployed app URL; needs investigation of deployment URL/config and any in-app/local canister references."
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-create-a-nothing-inspired-visual-design-system-for-the-app-high-contrast-minimal-industrial-feel-and-apply-it-consistently-across-all-screens-and-components-using-tailwind-css",
+      "title": "Create a Nothing-inspired visual design system for the app (high-contrast, minimal, industrial feel) and apply it consistently across all screens and components using Tailwind CSS.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-functional-music-player-ui-with-track-list-play-pause-previous-next-scrub-seek-bar-with-current-time-duration-volume-control-mute-slider-and-playback-state-indicators",
+      "title": "Implement a functional music player UI with: track list, play/pause, previous/next, scrub/seek bar with current time + duration, volume control (mute + slider), and playback state indicators.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-provide-a-starter-library-of-sample-audio-tracks-bundled-as-static-assets-and-wire-the-player-to-play-them-no-external-streaming-dependencies-required",
+      "title": "Provide a starter library of sample audio tracks bundled as static assets and wire the player to play them (no external streaming dependencies required).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-playback-features-shuffle-toggle-and-repeat-mode-off-repeat-one-repeat-all-with-clear-ui-affordances",
+      "title": "Add playback features: shuffle toggle and repeat mode (off / repeat-one / repeat-all) with clear UI affordances.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-internet-computer-backend-persistence-for-user-specific-data-favorites-liked-tracks-and-a-single-saved-playlist-order-per-user-principal",
+      "title": "Implement Internet Computer backend persistence for user-specific data: favorites (liked tracks) and a single saved playlist order per user principal.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-simple-app-structure-with-a-single-main-screen-that-includes-header-app-name-sign-in-status-player-section-controls-now-playing-and-library-section-track-list-favorites-indicators",
+      "title": "Add a simple app structure with a single main screen that includes: header (app name + sign-in status), player section (controls + now playing), and library section (track list + favorites indicators).",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-provide-backward-compatibility-for-existing-users-who-already-have-a-single-saved-playlist-order-so-they-do-not-lose-their-playlist-ordering-after-upgrading-to-multi-playlists",
+      "title": "Provide backward compatibility for existing users who already have a single saved playlist order so they do not lose their playlist ordering after upgrading to multi-playlists.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-react-query-hooks-to-support-multi-playlist-operations-fetch-playlist-list-active-playlist-create-rename-delete-update-playlist-tracks-order-and-ensure-cache-invalidation-keeps-the-ui-consistent",
+      "title": "Update React Query hooks to support multi-playlist operations (fetch playlist list, active playlist, create/rename/delete, update playlist tracks/order) and ensure cache invalidation keeps the UI consistent.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-playlist-management-ui-to-the-main-screen-that-allows-authenticated-users-to-select-an-active-playlist-create-a-new-playlist-rename-a-playlist-and-delete-a-playlist",
+      "title": "Add a playlist management UI to the main screen that allows authenticated users to: select an active playlist, create a new playlist, rename a playlist, and delete a playlist.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-library-section-behavior-so-it-renders-tracks-according-to-the-active-playlist-s-ordered-track-ids-and-allows-editing-the-active-playlist-s-order-and-contents",
+      "title": "Update the Library section behavior so it renders tracks according to the active playlist’s ordered track IDs, and allows editing the active playlist’s order and contents.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-investigate-and-fix-the-reported-production-error-canister-id-not-resolved-so-that-opening-the-deployed-url-works-reliably-and-the-frontend-always-targets-the-correct-production-canister-no-localhost-or-unresolved-canister-references-in-production",
+      "title": "Investigate and fix the reported production error “canister ID not resolved” so that opening the deployed URL works reliably and the frontend always targets the correct production canister (no localhost or unresolved canister references in production).",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-pwa-support-so-the-web-app-can-be-installed-on-android-apk-like-experience-by-providing-a-web-app-manifest-required-icons-and-a-service-worker-for-offline-shell-caching-using-english-user-facing-text",
+      "title": "Add PWA support so the web app can be installed on Android (APK-like experience) by providing a Web App Manifest, required icons, and a service worker for offline shell caching, using English user-facing text.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-in-app-install-app-entry-point-that-guides-android-users-to-install-the-pwa-and-explains-that-it-installs-like-an-app-show-it-only-when-installation-is-supported-otherwise-show-concise-instructions-english",
+      "title": "Add an in-app “Install app” entry point that guides Android users to install the PWA (and explains that it installs like an app). Show it only when installation is supported; otherwise show concise instructions (English).",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create a Nothing-style music player",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add playlist support to the music player (create/manage playlists in the app)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Extend the backend playlist model from a single saved playlist order per user to multiple named playlists per user, with an explicit “active playlist” selection.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add backend canister methods to create, list, update, and delete playlists, and to update playlist contents (ordered track IDs) for a specific playlist.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Make the web app downloadable as an Android APK (packaged app install)",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Nothing-style music player",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
